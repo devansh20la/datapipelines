@@ -175,3 +175,35 @@ class AddOriginalImageSizeAsTupleAndCropToSquare(AbstractMapper):
         )
         x["crop_coords_top_left"] = torch.tensor([top, left])
         return x
+
+class AddTargetSizeAsTuple(AbstractMapper):
+    """
+    Adds the target image size as params and crops to a square.
+    Also adds cropping parameters. Requires that no RandomCrop/CenterCrop has been called before
+    """
+
+    def __init__(
+        self,
+        h_key: str = "target_height",
+        w_key: str = "target_width",
+        use_data_key: bool = True,
+        data_key: str = "json",
+        *args,
+        **kwargs,
+    ):
+        super().__init__(*args, **kwargs)
+        self.h_key, self.w_key = h_key, w_key
+        self.data_key = data_key
+        self.use_data_key = use_data_key
+
+    @timeout_wrapper
+    @time_measure("AddOriginalImageSizeAsTupleAndCropToSquare")
+    def __call__(self, x: Dict) -> Dict:
+        if self.skip_this_sample(x):
+            return x
+        if self.use_data_key:
+            h, w = map(lambda y: x[self.data_key][y], (self.h_key, self.w_key))
+        else:
+            h, w = map(lambda y: x[y], (self.h_key, self.w_key))
+        x["target_size_as_tuple"] = torch.tensor([h, w])
+        return x
