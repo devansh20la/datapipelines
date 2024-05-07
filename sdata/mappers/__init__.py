@@ -4,6 +4,7 @@ from .sample_mappers import (
     TorchVisionImageTransforms,
     Rescaler,
     AddOriginalImageSizeAsTupleAndCropToSquare,
+    AddTargetSizeAsTuple
 )
 
 __all__ = [
@@ -12,4 +13,5 @@ __all__ = [
     "BatchedEinopsTransform",
     "TorchVisionImageTransforms",
     "Rescaler",
+    "AddTargetSizeAsTuple"
 ]
