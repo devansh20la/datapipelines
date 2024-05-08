@@ -186,16 +186,24 @@ class AddTargetSizeAsTuple(AbstractMapper):
         self,
         target_height: int = 256,
         target_width: int = 256,
+        use_data_key: bool = True,
+        data_key: str = "json",
         *args,
         **kwargs,
     ):
         super().__init__(*args, **kwargs)
         self.target_height, self.target_width = target_height, target_width
+        self.data_key = data_key
+        self.use_data_key = use_data_key
 
     @timeout_wrapper
     @time_measure("AddTargetSizeAsTuple")
     def __call__(self, x: Dict) -> Dict:
         if self.skip_this_sample(x):
             return x
+        if self.use_data_key:
+            h, w = map(lambda y: x[self.data_key][y], (self.target_height, self.target_width))
+        else:
+            h, w = map(lambda y: x[y], (self.target_height, self.target_width))
         x["target_size_as_tuple"] = torch.tensor([self.target_height, self.target_width])
         return x
